@@ -29,7 +29,7 @@ def parse_args():
     parser.add_argument('--lr', type=float, default=0.01)
     parser.add_argument('--wdc', type=float, default=0.0)
 
-    parser.add_argument('--Ks', nargs='?', default='[20, 40, 60, 80, 100]',
+    parser.add_argument('--Ks', nargs='?', default='[20]',
                         help='Output sizes of every layer')
 
     return parser.parse_args()
