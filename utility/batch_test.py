@@ -106,7 +106,7 @@ def test(data, logits, Ks):
 
     count = 0
 
-    for u_batch_id in range(n_user_batchs):
+    for u_batch_id in tqdm(range(n_user_batchs)):
         start = u_batch_id * u_batch_size
         end = (u_batch_id + 1) * u_batch_size
 
@@ -118,7 +118,7 @@ def test(data, logits, Ks):
 
         # user_batch_rating_uid = zip(rate_batch, user_batch)
         user_batch_rating_uid = []
-        for i, uid in tqdm(enumerate(user_batch)):
+        for i, uid in enumerate(user_batch):
             user_batch_rating_uid.append((uid, rate_batch[i], list(set(range(data.n_items)) - set(data.train_items[uid])), data.test_items[uid], Ks))
             # re = test_one_user((uid, rate_batch[uid], list(set(range(data.n_items)) - set(data.train_items[uid])), data.test_items[uid], Ks))
         batch_result = pool.map(test_one_user, user_batch_rating_uid)

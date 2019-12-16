@@ -2,6 +2,7 @@ from model import HeteroRGCN
 from loss import bpr_loss
 from data import Data
 from utility.batch_test import test
+from utility.watcher import EarlyStopping
 import torch
 from tqdm import tqdm 
 import argparse
@@ -12,6 +13,7 @@ def parse_args():
     parser.add_argument('--weights_path', nargs='?', default='')
     parser.add_argument('--data_dir')
     parser.add_argument('--pretrain', action='store_true')
+    parser.add_argument('--patience', default = 5, type = int)
 
     parser.add_argument('--in_size', type=int, default=128)
     parser.add_argument('--hidden_size', type=int, default=64)
@@ -39,6 +41,7 @@ Ks = eval(args.Ks)
 data = Data(args.data_dir, args.batch_size)
 model = HeteroRGCN(data.G, args.in_size, args.hidden_size, args.out_size, args.bias, args.self_loop, args.drop_out)
 opt = torch.optim.Adam(model.parameters(), lr=args.lr, weight_decay=args.wdc)
+early_stopping = EarlyStopping(patience=args.patience, verbose=True)
 
 for epoch in range(args.epoch):
     model.train()
@@ -59,6 +62,15 @@ for epoch in range(args.epoch):
     opt.step() 
 
     print("Epoch {}: loss {}, emb_loss {}, mf_loss {}".format(epoch, loss.item(), emb_loss, mf_loss))
+
+    early_stopping(loss.item())
+
+    if early_stopping.early_stop:
+        print("Early stopping")
+        break
+
+    if early_stopping.is_best:
+        torch.save(model.state_dict(), args.weights_path)
 
     if epoch%5==0:
         model.eval()
