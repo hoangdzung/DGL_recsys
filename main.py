@@ -34,35 +34,36 @@ def parse_args():
 
     return parser.parse_args()
 
+args = parse_args()
 Ks = eval(args.Ks)
 data = Data(args.data_dir, args.batch_size)
-model = HeteroRGCN(data.G, args.in_size, args.hidden_size, args.out_size, args.bias, args.self_loop, args.dropout)
+model = HeteroRGCN(data.G, args.in_size, args.hidden_size, args.out_size, args.bias, args.self_loop, args.drop_out)
 opt = torch.optim.Adam(model.parameters(), lr=args.lr, weight_decay=args.wdc)
 
-for epoch in tqdm(range(args.epoch)):
+for epoch in range(args.epoch):
     model.train()
     logits = model(data.G)
 
     loss, mf_loss, emb_loss = 0., 0., 0.
     n_batch = data.n_train // args.batch_size + 1
 
-    for idx in range(n_batch):
+    for idx in tqdm(range(n_batch),desc='epoch '+str(epoch)):
         users, pos_items, neg_items = data.sample()
         batch_mf_loss, batch_emb_loss = bpr_loss(logits['user'][users], logits['item'][pos_items], logits['item'][neg_items])
         loss = loss + batch_mf_loss + batch_emb_loss
+        mf_loss += batch_mf_loss.item()
         emb_loss += batch_emb_loss.item()
-        reg_loss += batch_reg_loss.item()
 
     opt.zero_grad()
     loss.backward()
     opt.step() 
 
-    print("Epoch {}: loss {}, emb_loss {}, reg_loss {}".format(epoch, loss.item(), emb_loss, reg_loss))
+    print("Epoch {}: loss {}, emb_loss {}, mf_loss {}".format(epoch, loss.item(), emb_loss, mf_loss))
 
     if epoch%5==0:
         model.eval()
         logits = model(data.G)
-        ret = test(logits, data, Ks)
+        ret = test(data, logits, Ks)
 
         final_perf = "recall=[%s], precision=[%s], hit=[%s], ndcg=[%s]" % \
                         ('\t'.join(['%.5f' % r for r in ret['recall']]),

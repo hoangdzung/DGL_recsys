@@ -6,10 +6,10 @@ Wang Xiang et al. Neural Graph Collaborative Filtering. In SIGIR 2019.
 @author: Xiang Wang (xiangwang@u.nus.edu)
 '''
 import utility.metrics as metrics
-from utility.parser import parse_args
 from utility.load_data import *
 import multiprocessing
 import heapq
+import torch
 
 cores = multiprocessing.cpu_count() // 2
 
@@ -98,8 +98,8 @@ def test(data, logits, Ks):
 
     u_batch_size = data.batch_size
 
-    test_users = users_to_test
-    n_test_users = len(test_users)
+    test_users = range(data.n_users)
+    n_test_users = data.n_users
     n_user_batchs = n_test_users // u_batch_size + 1
 
     count = 0
