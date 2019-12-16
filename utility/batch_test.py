@@ -94,7 +94,7 @@ def test(data, logits, Ks):
     result = {'precision': np.zeros(len(Ks)), 'recall': np.zeros(len(Ks)), 'ndcg': np.zeros(len(Ks)),
               'hit_ratio': np.zeros(len(Ks)), 'auc': 0.}
 
-    pool = multiprocessing.Pool(cores)
+    # pool = multiprocessing.Pool(cores)
 
     u_batch_size = data.batch_size
 
@@ -117,11 +117,12 @@ def test(data, logits, Ks):
         # user_batch_rating_uid = zip(rate_batch, user_batch)
         user_batch_rating_uid = []
         for uid in range(data.n_users):
-            user_batch_rating_uid.append((uid, rate_batch[uid], list(set(range(data.n_items)) - set(data.train_items[uid])), data.test_items[uid]))
-        batch_result = pool.map(test_one_user, user_batch_rating_uid)
-        count += len(batch_result)
-
-        for re in batch_result:
+            # user_batch_rating_uid.append((uid, rate_batch[uid], list(set(range(data.n_items)) - set(data.train_items[uid])), data.test_items[uid]))
+            re = test_one_user((uid, rate_batch[uid], list(set(range(data.n_items)) - set(data.train_items[uid])), data.test_items[uid]))
+        # batch_result = pool.map(test_one_user, user_batch_rating_uid)
+        # count += len(batch_result)
+            count += 1
+        # for re in batch_result:
             result['precision'] += re['precision']/n_test_users
             result['recall'] += re['recall']/n_test_users
             result['ndcg'] += re['ndcg']/n_test_users
@@ -130,5 +131,5 @@ def test(data, logits, Ks):
 
 
     assert count == n_test_users
-    pool.close()
+    # pool.close()
     return result
