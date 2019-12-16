@@ -7,11 +7,10 @@ import os
 class Data():
     def __init__(self, datadir, batch_size=128):
         self.train_items, self.train_edge_dict = self.get_edge_list(os.path.join(datadir, 'train.txt'))
-        self.test_items, _ = self.get_edge_list(os.path.join(datadir, 'test.txt'))
+        self.test_items, self.test_edge_dict  = self.get_edge_list(os.path.join(datadir, 'test.txt'))
         
         self.n_train = len(self.train_edge_dict[('user','ui','item')])
         self.n_test = len(self.test_edge_dict[('user','ui','item')])
-
         self.G = dgl.heterograph(self.train_edge_dict)
 
         self.n_items = self.G.number_of_nodes('item')
@@ -33,7 +32,7 @@ class Data():
             for item_id in item_id_list:
                 edge_dict[('user','ui', 'item')].append((user_id, item_id))
                 edge_dict[('item','iu', 'user')].append((item_id, user_id))
-        return edge_dict, items
+        return items, edge_dict
 
 
     def sample(self):

@@ -1,4 +1,5 @@
 import torch 
+import torch.nn.functional as F
 
 def bpr_loss(users, pos_items, neg_items, decay=1):
     pos_scores = torch.mul(users,pos_items).sum(1) 
