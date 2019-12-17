@@ -106,7 +106,7 @@ def test(data, logits, Ks):
 
     count = 0
 
-    for u_batch_id in tqdm(range(n_user_batchs)):
+    for u_batch_id in range(n_user_batchs):
         start = u_batch_id * u_batch_size
         end = (u_batch_id + 1) * u_batch_size
 

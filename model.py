@@ -87,5 +87,8 @@ class HeteroRGCN(nn.Module):
         h_dict_1 = self.layer1(G, self.embed)
         h_dict = {k : F.leaky_relu(h) for k, h in h_dict_1.items()}
         h_dict_2 = self.layer2(G, h_dict)
-        h_dict = {k: torch.cat([h_dict_1[k], h_dict_2[k]], dim=1) for k in h_dict_1}
+        h_dict = {k: torch.cat([self.embed[k],
+                                h_dict_1[k], 
+                                h_dict_2[k]
+                            ], dim=1) for k in h_dict_1}
         return h_dict
