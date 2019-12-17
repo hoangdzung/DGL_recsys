@@ -84,8 +84,8 @@ class HeteroRGCN(nn.Module):
         self.layer2 = HeteroRGCNLayer(hidden_size, out_size, G.etypes, bias, self_loop, dropout)
 
     def forward(self, G):
-        h_dict = self.layer1(G, self.embed)
-        h_dict = {k : F.leaky_relu(h) for k, h in h_dict.items()}
-        h_dict = self.layer2(G, h_dict)
-        # get paper logits
+        h_dict_1 = self.layer1(G, self.embed)
+        h_dict = {k : F.leaky_relu(h) for k, h in h_dict_1.items()}
+        h_dict_2 = self.layer2(G, h_dict)
+        h_dict = {k: torch.cat([h_dict_1[k], h_dict_2[k]], dim=1) for k in h_dict_1}
         return h_dict
